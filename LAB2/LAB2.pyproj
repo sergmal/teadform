@@ -23,12 +23,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="LAB2.py" />
-    <Compile Include="temp.py">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|PythonCore|3.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="teadform_lab2pres .pptx" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
