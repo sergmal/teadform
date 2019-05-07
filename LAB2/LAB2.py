@@ -6,33 +6,15 @@ import textacy.keyterms
 from ordered_set import OrderedSet
 import neuralcoref
 import re
-import os
-import wikipedia
+import temp
 
 nlp = spacy.load('en_core_web_md')
 neuralcoref.add_to_pipe(nlp)
 
-proxies = {
-    'http': 'kn.proxy.int.kn:80',
-    'https': 'kn.proxy.int.kn:80',
-}
-os.environ["HTTP_PROXY"]=proxies['http']
-os.environ["HTTPS_PROXY"]=proxies['https']
 
 intext = """John is a father of Andrew. Andrew is a man. Andrew is very smart. Andrew is a father of Bill. Tom is a cat. All cats are cool and nice. Barack Obama was born in Hawaii in 1961. He was president of the United States. London is the capital and most populous city of England. 
 Standing on the River Thames in the south east of the island of Great Britain, London has been a major settlement for two millennia. It was founded by the Romans, who named it Londinium.
 """
-
-input_topic = input("Press ENTER ")
-try:
-    if(input_topic  != ""): 
-        intext = wikipedia.summary(input_topic)
-except wikipedia.exceptions.DisambiguationError as e:
-    print(e.options)
-    input_topic = input("Press ENTER ")
-
-
-
 
 print(intext)
 reasonerlist = OrderedSet()
@@ -51,8 +33,8 @@ def makefact(lst):
 
 def rm(txt):
     if (str(txt).lower().startswith("the ") or str(txt).lower().startswith("a ")):
-        return txt.partition(' ')[2].replace("'s ", "").replace(" ","_").replace("_-_","_").replace(".","_").lower()
-    return txt.replace("'s ", "").replace(" ","_").replace("_-_","_").replace(".","_").lower()
+        return txt.partition(' ')[2].replace("'s ", "").replace(" ","_").lower()
+    return txt.replace("'s ", "").replace(" ","_").lower()
 
 def isNegative(tok):
     negatives = { "no", "not", "n't", "never", "none" }
@@ -405,6 +387,10 @@ def parsesentence(sentence):
     extract_relations10(sentenceDoc2)
     #print(reasonerlist)
 
+    svos = temp.findSVOs(sentenceDoc2)
+    #print("SVOS:")
+    #print(svos)
+
 
 doc = nlp(intext)
 
@@ -448,8 +434,7 @@ for fact in reasonerlist:
     print(fact)
     excractFirstWord = fact.partition('(')[0]
     determinersForSimilarity.append(excractFirstWord)
-    if(len(fact.partition('(')[1])>2):
-        prolog.assertz(fact)
+    prolog.assertz(fact)
 
 for rule in reasonerlistRules:
     print(rule)
@@ -463,24 +448,14 @@ input_text = ""
 similaritiestable = []
 
 def parsequestion(quest):
-    questdoc = nlp(quest)
-    if(questdoc[0].tag_.startswith("W")):
-        tempquest = "Echo"
-        for tok in questdoc:
-            if(tok.i != 0):
-                tempquest += " " + tok.text
-        quest = tempquest.replace(" ?",".")
-    else:
-        quest = quest.replace(" ?",".")
-
     if(quest.startswith("Is ")):
         quest = quest[3:].replace("?",".")
-#    elif("was" in quest):
-#        tempstr = quest.partition('was ')
-#        quest = "Echo was "+tempstr[-1].replace("?",".")
-#    else:
-#        tempstr = quest.partition('is ')
-#        quest = "Echo is "+tempstr[-1].replace("?",".")
+    elif("was" in quest):
+        tempstr = quest.partition('was ')
+        quest = "Echo was "+tempstr[-1].replace("?",".")
+    else:
+        tempstr = quest.partition('is ')
+        quest = "Echo is "+tempstr[-1].replace("?",".")
 
     parsesentence(quest)
     asked = ""
