@@ -11,11 +11,27 @@ import wikipedia
 
 nlp = spacy.load('en_core_web_md')
 neuralcoref.add_to_pipe(nlp)
-s']
+
+proxies = {
+    'http': 'kn.proxy.int.kn:80',
+    'https': 'kn.proxy.int.kn:80',
+}
+os.environ["HTTP_PROXY"]=proxies['http']
+os.environ["HTTPS_PROXY"]=proxies['https']
 
 intext = """John is a father of Andrew. Andrew is a man. Andrew is very smart. Andrew is a father of Bill. Tom is a cat. All cats are cool and nice. Barack Obama was born in Hawaii in 1961. He was president of the United States. London is the capital and most populous city of England. 
 Standing on the River Thames in the south east of the island of Great Britain, London has been a major settlement for two millennia. It was founded by the Romans, who named it Londinium.
 """
+
+input_topic = input("Press ENTER ")
+try:
+    if(input_topic  != ""): 
+        intext = wikipedia.summary(input_topic)
+except wikipedia.exceptions.DisambiguationError as e:
+    print(e.options)
+    input_topic = input("Press ENTER ")
+
+
 
 
 print(intext)
