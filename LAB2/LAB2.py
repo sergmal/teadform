@@ -114,14 +114,14 @@ def extract_relations3(doc):
                             tupl.append(chi) 
 
          if(len(tupl) == 2):
-            triple = '{}({})'.format(rm(tupl[1].text), rm(tupl[0].text))
+            triple = '{}({})'.format(rm(tupl[1].lemma_), rm(tupl[0].lemma_))
             reasonerlist.add(triple)
             tupl = []
 
          if(len(tupl) == 3):
-            triple = '{}({})'.format(rm(tupl[1].text), rm(tupl[0].text))
+            triple = '{}({})'.format(rm(tupl[1].lemma_), rm(tupl[0].lemma_))
             reasonerlist.add(triple)
-            triple = '{}({})'.format(rm(tupl[2].text), rm(tupl[0].text))
+            triple = '{}({})'.format(rm(tupl[2].lemma_), rm(tupl[0].lemma_))
             reasonerlist.add(triple)
             tupl = []
 
@@ -206,8 +206,9 @@ def extract_relations6(doc):
 
 def extract_relations7(doc):
     tupl = []
-    for token in doc:
-        if(token.pos_ == "ADP"):
+    tupl2 = []
+    for tok in doc:
+        if(tok.pos_ == "ADP"):
             for token in doc:
                 if(token.dep_ == "ROOT"):
                     for child in token.children:
@@ -221,6 +222,7 @@ def extract_relations7(doc):
                     for child in token.children:
                         if(child.dep_ == "nsubj" or child.dep_ == "pobj"):
                             tupl.append(child)
+                            tupl2.append(child)
 
 
                             
@@ -236,21 +238,29 @@ def extract_relations7(doc):
                 reasonerlist.add(triple)
                 tupl = []
 
+
 def extract_relations8(doc):
     tupl = []
     for token in doc:
         if(token.dep_ == "ROOT" and token.head.pos_ == "VERB" and token.tag_ != "VBZ"):
             tupl.append(token)
             for child in token.children:
-                if(child.dep_ == "nsubjpass" or child.dep_ == "nsubjpass"):
+                if(child.dep_ == "nsubjpass" or child.dep_ == "nsubj"):
                     tupl.append(child)
-                if(child.dep_ == "agent"):
+                if(child.dep_ == "agent" or child.dep_ == "prep"):
                     for chi in child.children:
                         if(chi.dep_ == "pobj"):
                             tupl.append(chi)
 
 
-                            
+        if(len(tupl) == 4):
+            triple = '{}({},{})'.format(rm(tupl[0].text), rm(tupl[1].text), rm(tupl[2].text))
+            #print(triple)
+            reasonerlist.add(triple)
+            triple = '{}({},{})'.format(rm(tupl[0].text), rm(tupl[1].text), rm(tupl[3].text))
+            #print(triple)
+            reasonerlist.add(triple)
+            tupl = []                           
         if(len(tupl) == 3):
             triple = '{}({},{})'.format(rm(tupl[0].text), rm(tupl[1].text), rm(tupl[2].text))
             #print(triple)
@@ -279,6 +289,66 @@ def extract_relations9(doc):
             reasonerlist.add(triple)
             tupl = []
 
+def extract_relations10(doc):
+    tupl = []
+    for token in doc:
+        if(token.dep_ == "ROOT" and token.head.pos_ == "VERB" and token.tag_ != "VBN"):
+            tupl.append(token)
+            for child in token.children:
+                if(child.head.pos_ == "PROPN"):
+                    tupl.append(child)
+                    for chi in child.children:
+                        if(chi.dep_ == "agent"):
+                            for chi in child.children:
+                                if(chi.dep_ == "pobj"):
+                                    tupl.append(chi)
+
+
+                            
+        if(len(tupl) == 3):
+            triple = '{}({},{})'.format(rm(tupl[0].text), rm(tupl[1].text), rm(tupl[2].text))
+            #print(triple)
+            reasonerlist.add(triple)
+            tupl = []
+
+def extract_relations10(doc):
+    tupl2 = []
+    for tok in doc:
+        if(tok.pos_ == "ADP"):
+            for token in doc:
+                if(token.dep_ == "ROOT"):
+                    for child in token.children:
+                        if(child.pos_ == "VERB" and child.tag_ != "VBZ" and child.tag_ != "VBN"):
+                            tupl2.append(child)
+                            for chi in child.children:
+                                if(chi.dep_ == "prep"):
+                                    for c in chi.children:
+                                        if(c.dep_ == "pobj"):
+                                            tupl2.append(c)
+                    for child in token.children:
+                        if(child.dep_ == "nsubj" or child.dep_ == "pobj"):
+                            tupl2.append(child)                  
+
+            if(len(tupl2) == 4):
+                triple = '{}({},{})'.format(rm(tupl2[0].text), rm(tupl2[3].text), rm(tupl2[1].text))
+                #print(triple)
+                reasonerlist.add(triple)
+                triple = '{}({},{})'.format(rm(tupl2[0].text), rm(tupl2[3].text), rm(tupl2[2].text))
+                #print(triple)
+                reasonerlist.add(triple)
+                tupl = []
+
+            if(len(tupl2) == 3):
+                triple = '{}({},{})'.format(rm(tupl2[0].text), rm(tupl2[2].text), rm(tupl2[1].text))
+                #print(triple)
+                reasonerlist.add(triple)
+                tupl = []
+
+            if(len(tupl2) == 2):
+                triple = '{}({})'.format(rm(tupl2[0].text), rm(tupl2[1].text))
+                #print(triple)
+                reasonerlist.add(triple)
+                tupl = []
 
 def hasNumbers(inputString):
     return any(char.isdigit() for char in inputString)
@@ -312,6 +382,9 @@ def parsesentence(sentence):
     #print(reasonerlist)
 
     extract_relations9(sentenceDoc2)
+    #print(reasonerlist)
+
+    extract_relations10(sentenceDoc2)
     #print(reasonerlist)
 
     svos = temp.findSVOs(sentenceDoc2)
@@ -379,17 +452,17 @@ def parsequestion(quest):
         quest = quest[3:].replace("?",".")
     elif("was" in quest):
         tempstr = quest.partition('was ')
-        quest = "Temp was "+tempstr[-1].replace("?",".")
+        quest = "Echo was "+tempstr[-1].replace("?",".")
     else:
         tempstr = quest.partition('is ')
-        quest = "Temp is "+tempstr[-1].replace("?",".")
+        quest = "Echo is "+tempstr[-1].replace("?",".")
 
     parsesentence(quest)
     asked = ""
     if(len(reasonerlist)>0):
         asked = reasonerlist[-1]
-        if("temp" in asked):
-            asked = asked.replace("temp", "X")
+        if("echo" in asked):
+            asked = asked.replace("echo", "X")
     return asked
 
 while(input_text != 'quit'):
@@ -408,7 +481,7 @@ while(input_text != 'quit'):
         if(asked != "" and extractFirstWord not in determinersForSimilarity and askedDoc[0].pos_ == "ADJ"):
             for word in determinersForSimilarity:
                 wordDoc = nlp(word)
-                if(wordDoc[0].has_vector and wordDoc[0].pos_ == "ADJ"):
+                if(wordDoc[0].has_vector):
                     similaritiestable.append([word, askedDoc[0].similarity(wordDoc[0])])
 
             similaritiestable.sort(key=lambda x: float(x[1]), reverse = True)
