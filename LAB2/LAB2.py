@@ -11,7 +11,6 @@ import wikipedia
 
 nlp = spacy.load('en_core_web_md')
 neuralcoref.add_to_pipe(nlp)
-s']
 
 intext = """John is a father of Andrew. Andrew is a man. Andrew is very smart. Andrew is a father of Bill. Tom is a cat. All cats are cool and nice. Barack Obama was born in Hawaii in 1961. He was president of the United States. London is the capital and most populous city of England. 
 Standing on the River Thames in the south east of the island of Great Britain, London has been a major settlement for two millennia. It was founded by the Romans, who named it Londinium.
@@ -430,10 +429,10 @@ determinersForSimilarity = OrderedSet()
 
 for fact in reasonerlist:
     print(fact)
-    excractFirstWord = fact.partition('(')[0]
-    determinersForSimilarity.append(excractFirstWord)
-    if(len(fact.partition('(')[1])>2):
-        prolog.assertz(fact)
+    #excractFirstWord = fact.partition('(')[0]
+    #determinersForSimilarity.append(excractFirstWord)
+    #if(len(fact.partition('(')[1])>2):
+    prolog.assertz(fact)
 
 for rule in reasonerlistRules:
     print(rule)
